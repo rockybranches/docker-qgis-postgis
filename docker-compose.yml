@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis:latest
+    container_name: postgis
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    networks:
+      - qgis_network
+
+  qgis:
+    image: kartoza/qgis-desktop:release-ltr
+    container_name: qgis
+    environment:
+      DISPLAY: ${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - qgis_data:/home/user/data
+    depends_on:
+      - postgis
+    networks:
+      - qgis_network
+    # Optional: Uncomment the lines below for VNC setup
+    # ports:
+    #   - "5901:5901"
+    # environment:
+    #   - VNC_PASSWORD=myvncpassword
+
+volumes:
+  postgis_data:
+  qgis_data:
+
+networks:
+  qgis_network:
+    driver: bridge
